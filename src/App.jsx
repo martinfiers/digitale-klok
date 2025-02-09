@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Confetti from 'react-confetti';
 import { motion } from 'framer-motion';
 
@@ -21,26 +21,57 @@ const ClockContainer = () => {
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [animatePulsation, setAnimatePulsation] = useState(false);
+  const [difficulty, setDifficulty] = useState(3);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
       <h1 className="text-3xl font-bold text-red-500">De digitale klok</h1>
+      <p>Vul het juiste uur in het vak bij 'geschreven uur'.</p>
       <div className="flex flex-wrap justify-center gap-8 mb-8">
-        <DigitalClock time={time} />
-        <AnalogClock time={time} animatePulsation={animatePulsation} />
+        <DigitalClock time={time} difficulty={difficulty} />
+        <AnalogClock time={time} difficulty={difficulty} animatePulsation={animatePulsation} />
         <TextualClock time={time} showConfetti={showConfetti} setShowConfetti={setShowConfetti} setAnimatePulsation={setAnimatePulsation} setTime={setTime} />
       </div>
-      <ResetButton setTime={setTime} ></ResetButton>
+
+      <div className="flex flex-wrap justify-center gap-8 mb-8">
+        <ResetButton setTime={setTime} ></ResetButton>
+        <DifficultyRange difficulty={difficulty} setDifficulty={setDifficulty}></DifficultyRange>
+        </div>
     </div>
   );
 };
 
-const DigitalClock = ({ time }) => (
-  <div>
-    <h2 className="text-xl font-semibold">Digital Clock</h2>
-    <p className="text-3xl mt-2">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-  </div>
-);
+const DifficultyRange = ({ difficulty, setDifficulty}) => {
+
+  function changeDifficulty(e) {
+    setDifficulty(e.target.value);
+  };
+
+
+  return (
+    <div>
+      <p>Makkelijkheid: </p>
+      <input id="minmax-range" type="range" min="1" max="3" value={difficulty} onChange={changeDifficulty} ></input>
+    </div>
+  );
+};
+
+const DigitalClock = ({ time, difficulty }) => {
+  const timeDisplay = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return (
+    <div>
+      <h2 className="text-xl font-semibold">Digitale klok</h2>
+      <p className="text-3xl mt-2">
+      {difficulty < 3 ? (
+        <div>{timeDisplay.replace(/[0-9]/g, 'X')}</div>
+      ) : (
+        <div>{timeDisplay}</div>
+      )}
+      
+      </p>
+    </div>
+  );
+};
 
 function getRandomTime() {
   const start = new Date('2020-01-01');
@@ -66,7 +97,7 @@ const ResetButton = ({ setTime }) => {
 };
 
 
-const AnalogClock = ({ time, animatePulsation }) => {
+const AnalogClock = ({ time, difficulty, animatePulsation }) => {
   const hours = time.getHours() % 12;
   const minutes = time.getMinutes();
   const seconds = time.getSeconds();
@@ -120,8 +151,8 @@ const AnalogClock = ({ time, animatePulsation }) => {
           {/* Center circle */}
           <circle cx="50" cy="50" r="2" fill="black" />
 
-            {/* Numbers */}
-            {[...Array(12)].map((_, i) => {
+          {/* Numbers */}
+          {difficulty > 1 && [...Array(12)].map((_, i) => {
               const angle = (i + 1) * 30; // 30 degrees for each hour position
               const x = 50 + 40 * Math.sin((angle * Math.PI) / 180);
               const y = 50 - 40 * Math.cos((angle * Math.PI) / 180);
@@ -139,6 +170,10 @@ const AnalogClock = ({ time, animatePulsation }) => {
                 </text>
               );
             })}
+
+
+            {/* } */}
+          
             
         </svg>
       </motion.div>
@@ -180,8 +215,10 @@ const TextualClock = ({ time, showConfetti, setShowConfetti, setAnimatePulsation
   const formattedHours = hours % 12 || 12;
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
+  const inputRef = useRef(null);
+
   function handleSubmit(event) {
-    event.preventDefault()
+    event.preventDefault();
     const antwoord = event.currentTarget.elements.antwoord.value;
     const correct = tijdNaarTekst(hours, minutes);
     console.log('Antwoord gesubmit', antwoord, 'correct', correct);
@@ -189,6 +226,13 @@ const TextualClock = ({ time, showConfetti, setShowConfetti, setAnimatePulsation
       // Show confetti for 3 seconds
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 4000);
+      
+      // Resetting the value
+      // event.currentTarget.elements.antwoord.value = ""; // direct reset
+      // Add a delay before resetting the input value
+      setTimeout(() => {
+        inputRef.current.value = '';
+      }, 3000); // 3-second delay
 
       const newTime = getRandomTime();
 
@@ -201,9 +245,9 @@ const TextualClock = ({ time, showConfetti, setShowConfetti, setAnimatePulsation
 
   return (
     <div>
-      <h2 className="text-xl font-semibold">Textual Clock</h2>
+      <h2 className="text-xl font-semibold">Geschreven uur</h2>
         <form onSubmit={handleSubmit}>
-          <input id="antwoord" type="text" className="bg-gray-50 border border-gray-300"></input>
+          <input id="antwoord" ref={inputRef} type="text" className="bg-gray-50 border border-gray-300"></input>
         </form>
 
       {showConfetti && <Confetti />}
