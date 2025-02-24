@@ -25,7 +25,7 @@ const ClockContainer = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold text-red-500">De digitale klok</h1>
+      <h1 className="text-3xl font-bold text-red-500">De digitale klok van Arthur</h1>
       <p>Vul het juiste uur in het vak bij 'geschreven uur'.</p>
       <div className="flex flex-wrap justify-center gap-8 mb-8">
         <DigitalClock time={time} difficulty={difficulty} />
@@ -91,7 +91,7 @@ const ResetButton = ({ setTime }) => {
 
   return (
   <div>
-    <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" onClick={resetTime}>Opnieuw</button>
+    <button type="button" className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" onClick={resetTime}>Andere opdracht</button>
   </div>
   )
 };
